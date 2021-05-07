@@ -1,5 +1,5 @@
 # 32-bit-Floating-Point-ALU
-Arithmetical Logical Unit 
+Arithmetical Logical Unit (Gate Level Implimentation)
 
 
 Multiplication 
