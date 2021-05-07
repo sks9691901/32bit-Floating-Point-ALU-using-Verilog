@@ -20,12 +20,12 @@
 //////////////////////////////////////////////////////////////////////////////////
 //
 // module 1
-module mul(
-		input [31:0] a_operand,
-		input [31:0] b_operand,
-		output Exception,Overflow,Underflow,
-		output [31:0] result
-		);
+module multiplication(
+    input [31:0] a_operand,
+    input [31:0] b_operand,
+    output Exception,Overflow,Underflow,
+    output [31:0] result
+    );
 wire [8:0] exponent,temp_expo,comp_expo,sum_exponent;
 wire [22:0] product_mantissa;
 wire [23:0] operand_a,operand_b;
