@@ -20,43 +20,60 @@
 //////////////////////////////////////////////////////////////////////////////////
 //
 // module 1
-module multiplication(
-    input [31:0] a_operand,
-    input [31:0] b_operand,
-    output Exception,Overflow,Underflow,
-    output [31:0] result
-    );
-wire [8:0] exponent,temp_expo,comp_expo,sum_exponent;
+module mul(
+		input [31:0] a_operand,
+		input [31:0] b_operand,
+		output Exception,Overflow,Underflow,
+		output [31:0] result
+		);
+wire [8:0] exponent,sum_exponent;
 wire [22:0] product_mantissa;
-wire [23:0] operand_a,operand_b;
 wire [47:0] product,product_normalised;
 wire bitandA,bitandB,bitorA,bitorB,pro_man_bitand;
-wire [8:0]temp;
-wire sign,product_round,normalised,zero,carry,sign_carry,not_sign,not_zero,w1;
+wire sign,product_round,normalised,zero,carry,sign_carry,not_zero,w1;
 wire [31:0]ripple_result_1,ripple_result_2,ripple_result_3;
 
-xor (sign,a_operand[31],b_operand[31]);
+xor (sign,a_operand[31],b_operand[31]); // sign bit of answer
+
+// if exponent of any operand is zero then either it is Inf or NaN i.e., Exception is set to high
 bitand C1(.bitandin(a_operand[30:23]),.bitandout(bitandA));
 bitand C2(.bitandin(b_operand[30:23]),.bitandout(bitandB));
-or(Exception,bitandA,bitandB);
+or(Exception,bitandA,bitandB); 
+
+// if exponent bits are not all zero then the implied bit (hidden bit) must be 1
 bitor  C3(.bitorin(a_operand[30:23]),.bitorout(bitorA));
 bitor  C4(.bitorin(b_operand[30:23]),.bitorout(bitorB));
+// Gate Level is to be imlemented
 assign product = {bitorA,a_operand[22:0]} * {bitorB,b_operand[22:0]};
+// Rounding the last 23 bits
 bitor2 C5(.in(product[22:0]),.out(product_round));	
+// If 48th bit of product is 1 then product is normalised and this bit will acts as hidden bit
 and(normalised,product[47],1'b1);
+// If not normalised, left shift the product 
 assign product_normalised = normalised ? product : product << 1;
+// 
 assign product_mantissa = product_normalised[46:24] + (product_normalised[23] & product_round);
+// product is zero when mantissa is all zero
 bitand2 C6(.in(product_mantissa[22:0]),.out(pro_man_bitand));
+// if exception zero will be low otherwise depending on bitwise and of mantissa of product, zero will be assigned a value
 mux C7(.fi(pro_man_bitand),.si(1'b0),.SL(Exception),.Y(zero));
+// Adding of exponenta and substracting BIAS from it 
 rca8bit  C8(.A(a_operand[30:23]),.B(b_operand[30:23]),.Cin(1'b0),.Sum(sum_exponent[7:0]),.Cout(sum_exponent[8]));
 rca9bit  C10( .A(sum_exponent[8:0]), .B(9'b110000001), .Cin(normalised),       .Sum(exponent[8:0]), .Cout(sign_carry));
 wire not_zero,w1;
+// Since we are using 2's complement method for substraction if sign_carry is zero then it means we get a negative value and this is Underflow 
 not(Underflow,sign_carry);
+// If sign_carry is 1 and 9th bit of exponent is also 1 then it means result is positive but the exponent had exceeded its limit
 and(Overflow,sign_carry,exponent[8]);
+// If Exception is high then assign 32'b0 to result
 mux_multi C13( .A({sign,exponent[7:0],product_mantissa}), .B(32'b00000000000000000000000000000000),       .SL(Exception),    .O(ripple_result_1[31:0]));
+// If zero is high then result is zero
 mux_multi C14( .A(ripple_result_1[31:0]),                 .B({sign,31'b0000000000000000000000000000000}), .SL(zero),         .O(ripple_result_2[31:0]));
+// If Overflow is high then it means exponent had exceeded it value i.e., 8'b11111111
 mux_multi C15( .A(ripple_result_2[31:0]),                 .B({sign,31'b1111111100000000000000000000000}), .SL(Overflow),     .O(ripple_result_3[31:0]));
+// If Underflow is high then it means exponent is still  negative
 mux_multi C16( .A(ripple_result_3[31:0]),                 .B({sign,31'b0000000000000000000000000000000}), .SL(Underflow),    .O(result[31:0])         );
+// If Exception, zero, Overflow, Underflow are all low then answer is assigned to the result
 endmodule
 
 // module 2
