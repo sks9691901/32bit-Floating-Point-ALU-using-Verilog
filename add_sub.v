@@ -314,49 +314,58 @@ module encoder(
 always @(significand_in)
 begin
 	casex (significand_in)
-		24'b1xxx_xxxx_xxxx_xxxx_xxxx_xxxx :	begin
-													   significand_out = significand_in;
-									 				   shift = 5'd0;
-														end
-		24'b01xx_xxxx_xxxx_xxxx_xxxx_xxxx : begin						
-										 			   significand_out = significand_in << 1;
-									 				   shift = 5'd1;
-														end
+		24'b1xxx_xxxx_xxxx_xxxx_xxxx_xxxx : 
+			begin
+			significand_out = significand_in;
+			shift = 5'd0;
+			end
+		24'b01xx_xxxx_xxxx_xxxx_xxxx_xxxx :
+			begin						
+			significand_out = significand_in << 1;
+			shift = 5'd1;
+			end
 
-		24'b001x_xxxx_xxxx_xxxx_xxxx_xxxx : begin						
-										 			   significand_out = significand_in << 2;
-									 				   shift = 5'd2;
-													   end
+		24'b001x_xxxx_xxxx_xxxx_xxxx_xxxx :
+			begin						
+			significand_out = significand_in << 2;
+			shift = 5'd2;
+			end
 
-		24'b0001_xxxx_xxxx_xxxx_xxxx_xxxx : 	begin 							
-													significand_out = significand_in << 3;
-								 	 				shift = 5'd3;
-								 		end
+		24'b0001_xxxx_xxxx_xxxx_xxxx_xxxx :
+			begin 							
+			significand_out = significand_in << 3;
+			shift = 5'd3;
+			end
 
-		24'b0000_1xxx_xxxx_xxxx_xxxx_xxxx : 	begin						
-									 				significand_out = significand_in << 4;
-								 	 				shift = 5'd4;
-								 		end
+		24'b0000_1xxx_xxxx_xxxx_xxxx_xxxx :
+			begin						
+			significand_out = significand_in << 4;
+			shift = 5'd4;
+			end
 
-		24'b0000_01xx_xxxx_xxxx_xxxx_xxxx : 	begin						
-									 				significand_out = significand_in << 5;
-								 	 				shift = 5'd5;
-										end
+		24'b0000_01xx_xxxx_xxxx_xxxx_xxxx :
+			begin						
+			significand_out = significand_in << 5;
+			shift = 5'd5;
+			end
 
-		24'b0000_001x_xxxx_xxxx_xxxx_xxxx : 	begin						// 24'h020000
-									 				significand_out = significand_in << 6;
-								 	 				shift = 5'd6;
-						 				end
+		24'b0000_001x_xxxx_xxxx_xxxx_xxxx :
+			begin
+			significand_out = significand_in << 6;
+			shift = 5'd6;
+			end
 
-		24'b0000_0001_xxxx_xxxx_xxxx_xxxx : 	begin						// 24'h010000
-									 				significand_out = significand_in << 7;
-								 	 				shift = 5'd7;
-						 				end
+		24'b0000_0001_xxxx_xxxx_xxxx_xxxx :
+			begin
+			significand_out = significand_in << 7;
+			shift = 5'd7;
+			end
 
-		24'b0000_0000_1xxx_xxxx_xxxx_xxxx : 	begin						// 24'h008000
-									 				significand_out = significand_in << 8;
-								 	 				shift = 5'd8;
-						 				end
+		24'b0000_0000_1xxx_xxxx_xxxx_xxxx :
+			begin	
+			significand_out = significand_in << 8;
+			shift = 5'd8;
+			end
 
 		24'b0000_0000_01xx_xxxx_xxxx_xxxx : 	begin						// 24'h004000
 									 				significand_out = significand_in << 9;
@@ -437,10 +446,6 @@ begin
 								 					significand_out = significand_in << 24;
 							 	 					shift = 5'd24;
 						 				end
-		// default : 	begin
-		// 				Significand = (~significand) + 1'b1;
-		// 				shift = 8'd0;
-		// 			end
 	endcase
 end
 
