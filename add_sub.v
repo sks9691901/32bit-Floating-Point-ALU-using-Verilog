@@ -60,42 +60,45 @@ or(real_sign,and1,and2);
 
 and(result_sign,operand_a[31],1'b1); // final answer sign bit
 
-assign mantissa_a = {1'b1,operand_a[22:0]};
+bitor      C10(.bitorin(operand_a[30:23]), .bitorout(bitorA));
+bitor      C11(.bitorin(operand_b[30:23]), .bitorout(bitorB));
+
+assign mantissa_a = {bitorA,operand_a[22:0]};
 // shifting of mantissa
-assign mantissa_b = {1'b1,operand_b[22:0]} >> expo_diff;
+assign mantissa_b = {bitorB,operand_b[22:0]} >> expo_diff;
 
-complement C10(.I(mantissa_b[7:0]  ), .ctrl(real_sign), .O(mantissa_b_comp[7:0])  );
-complement C11(.I(mantissa_b[15:8] ), .ctrl(real_sign), .O(mantissa_b_comp[15:8]) );
-complement C12(.I(mantissa_b[23:16]), .ctrl(real_sign), .O(mantissa_b_comp[23:16]));
+complement C12(.I(mantissa_b[7:0]  ), .ctrl(real_sign), .O(mantissa_b_comp[7:0])  );
+complement C13(.I(mantissa_b[15:8] ), .ctrl(real_sign), .O(mantissa_b_comp[15:8]) );
+complement C14(.I(mantissa_b[23:16]), .ctrl(real_sign), .O(mantissa_b_comp[23:16]));
 
-rca24bit   C13(.A(mantissa_a[23:0] ), .B(mantissa_b_comp[23:0]), .Cin(real_sign), .Sum(mantissa_sum[23:0]), .Cout(mantissa_carry));
+rca24bit   C15(.A(mantissa_a[23:0] ), .B(mantissa_b_comp[23:0]), .Cin(real_sign), .Sum(mantissa_sum[23:0]), .Cout(mantissa_carry));
 not(comp_mantissa_carry,mantissa_carry);
 and(temp_bit1,real_sign,comp_mantissa_carry);
-complement C14(.I(mantissa_sum[7:0]), .ctrl(temp_bit1), .O(comp_mantissa_sum[7:0]));
-complement C15(.I(mantissa_sum[15:8]), .ctrl(temp_bit1), .O(comp_mantissa_sum[15:8]));
-complement C16(.I(mantissa_sum[23:16]), .ctrl(temp_bit1), .O(comp_mantissa_sum[23:16]));
-rca24bit   C17(.A(comp_mantissa_sum[23:0] ), .B(24'd0), .Cin(temp_bit1), .Sum(final_mantissa_sum[23:0]), .Cout());
+complement C16(.I(mantissa_sum[7:0]), .ctrl(temp_bit1), .O(comp_mantissa_sum[7:0]));
+complement C17(.I(mantissa_sum[15:8]), .ctrl(temp_bit1), .O(comp_mantissa_sum[15:8]));
+complement C18(.I(mantissa_sum[23:16]), .ctrl(temp_bit1), .O(comp_mantissa_sum[23:16]));
+rca24bit   C19(.A(comp_mantissa_sum[23:0] ), .B(24'd0), .Cin(temp_bit1), .Sum(final_mantissa_sum[23:0]), .Cout());
 
-bitnor      C0A(.in(final_mantissa_sum[23:0]), .bitnorout(bitor_mantissa));
-bitnor      C0B(.in({16'd0,expo_diff[7:0]}), .bitnorout(bitor_expo_diff));
+bitnor      C20(.in(final_mantissa_sum[23:0]), .bitnorout(bitor_mantissa));
+bitnor      C21(.in({16'd0,expo_diff[7:0]}), .bitnorout(bitor_expo_diff));
 and(zero,bitor_mantissa,bitor_expo_diff);
 
 not(comp_real_sign,real_sign);
 and(temp_bit2,comp_real_sign,mantissa_carry);
 
-demux_multi  C18(.I(final_mantissa_sum[23:0]), .SL(temp_bit2), .A(not_normalised[23:0]), .B(normalised[23:0]));
+demux_multi  C22(.I(final_mantissa_sum[23:0]), .SL(temp_bit2), .A(not_normalised[23:0]), .B(normalised[23:0]));
 
-encoder      C19(.significand_in(not_normalised[23:0]), .shift(dec_expo[4:0]), .significand_out(final_normalised[23:0]));
+encoder      C23(.significand_in(not_normalised[23:0]), .shift(dec_expo[4:0]), .significand_out(final_normalised[23:0]));
 
-complement   C20(.I({3'b000,dec_expo[4:0]}), .ctrl(1'b1), .O(comp_dec_expo[7:0]));
-rca8bit      C21(.A(res_expo[7:0]), .B(comp_dec_expo[7:0]), .Cin(1'b1), .Sum(temp_expo[7:0]), .Cout(w1));
+complement   C24(.I({3'b000,dec_expo[4:0]}), .ctrl(1'b1), .O(comp_dec_expo[7:0]));
+rca8bit      C25(.A(res_expo[7:0]), .B(comp_dec_expo[7:0]), .Cin(1'b1), .Sum(temp_expo[7:0]), .Cout(w1));
 not(nw1,w1);
-complement   C22(.I(temp_expo[7:0]), .ctrl(nw1), .O(comp_temp_expo[7:0]));
-rca8bit      C23(.A(comp_temp_expo[7:0]), .B(8'b00000000), .Cin(nw1), .Sum(final_res_expo[7:0]), .Cout());
-rca8bit      C24(.A(res_expo[7:0]), .B(8'd0), .Cin(temp_bit2), .Sum(final_res_expo1[7:0]), .Cout());
-mux_multi    C25(.A({result_sign,final_res_expo[7:0],final_normalised[22:0]}), .B({result_sign,final_res_expo1[7:0],normalised[23:1]}), .SL(temp_bit2), .O(temp_result1[31:0]));
-mux_multi    C26(.A(temp_result1[31:0]), .B(32'd0), .SL(zero), .O(temp_result2[31:0]));
-mux_multi    C27(.A(temp_result2[31:0]), .B(32'hFFFFFFFF), .SL(Exception), .O(Result[31:0]));
+complement   C26(.I(temp_expo[7:0]), .ctrl(nw1), .O(comp_temp_expo[7:0]));
+rca8bit      C27(.A(comp_temp_expo[7:0]), .B(8'b00000000), .Cin(nw1), .Sum(final_res_expo[7:0]), .Cout());
+rca8bit      C28(.A(res_expo[7:0]), .B(8'd0), .Cin(temp_bit2), .Sum(final_res_expo1[7:0]), .Cout());
+mux_multi    C29(.A({result_sign,final_res_expo[7:0],final_normalised[22:0]}), .B({result_sign,final_res_expo1[7:0],normalised[23:1]}), .SL(temp_bit2), .O(temp_result1[31:0]));
+mux_multi    C30(.A(temp_result1[31:0]), .B(32'd0), .SL(zero), .O(temp_result2[31:0]));
+mux_multi    C31(.A(temp_result2[31:0]), .B(32'hFFFFFFFF), .SL(Exception), .O(Result[31:0]));
 
 endmodule
 
@@ -104,6 +107,13 @@ module bitand(
 	 output bitandout
 	 );
 and(bitandout,bitandin[7],bitandin[6],bitandin[5],bitandin[4],bitandin[3],bitandin[2],bitandin[1],bitandin[0]);
+endmodule
+
+module bitor(
+	 input [7:0]bitorin,
+	 output bitorout
+	 );
+or(bitorout,bitorin[7],bitorin[6],bitorin[5],bitorin[4],bitorin[3],bitorin[2],bitorin[1],bitorin[0]);
 endmodule
 
 module bitnor(
