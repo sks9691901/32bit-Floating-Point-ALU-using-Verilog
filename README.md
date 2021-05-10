@@ -8,6 +8,7 @@ BLOCK DIAGRAM
 ![block_sch](https://user-images.githubusercontent.com/76876019/117704774-db9d9a00-b1e8-11eb-90e7-e50330e2176e.PNG)
 
 A = 32'b01000001000111001100110011001101 ==============> +9.8
+
 B = 32'b01000000100010011001100110011010 ==============> +4.3
 
 operation[2:0]
