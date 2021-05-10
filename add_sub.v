@@ -24,15 +24,19 @@ module add_sub(
      input  [31:0]B,
      input  sign,
      output Exception,
-	  output zero,
+	  output Overflow,
+	  output Underflow,
      output [31:0]Result
 );
 wire [7:0]comp_B,diff,comp_diff,expo_diff,comp_dec_expo,temp_expo,comp_temp_expo,final_res_expo,final_res_expo1;
 wire expo_sign,expo_sign_comp,real_sign,result_sign,bitorA,bitorB,bitandA,bitandB,bitor_mantissa,bitor_expo_diff,mantissa_carry;
-wire a_sign_comp,and1,and2,or1,xor1,xnor1,comp_mantissa_carry,comp_real_sign,temp_bit1,temp_bit2,w1,nw1;
+wire a_sign_comp,and1,and2,or1,xor1,xnor1,comp_mantissa_carry,comp_real_sign,temp_bit1,temp_bit2,zero,w1,nw1;
 wire [31:0]operand_a,operand_b,res_expo,temp_result1,temp_result2;
 wire [23:0]mantissa_a,mantissa_b,mantissa_b_comp,mantissa_sum,comp_mantissa_sum,final_mantissa_sum,normalised,not_normalised,final_normalised;
 wire [4:0]dec_expo;
+
+not(Overflow,1'b1);
+not(Underflow,1'b1);
 
 bitand     C01(.bitandin(A[30:23]), .bitandout(bitandA));
 bitand     C02(.bitandin(B[30:23]), .bitandout(bitandB));
@@ -74,8 +78,8 @@ complement C14(.I(mantissa_b[23:16]), .ctrl(real_sign), .O(mantissa_b_comp[23:16
 rca24bit   C15(.A(mantissa_a[23:0] ), .B(mantissa_b_comp[23:0]), .Cin(real_sign), .Sum(mantissa_sum[23:0]), .Cout(mantissa_carry));
 not(comp_mantissa_carry,mantissa_carry);
 and(temp_bit1,real_sign,comp_mantissa_carry);
-complement C16(.I(mantissa_sum[7:0]), .ctrl(temp_bit1), .O(comp_mantissa_sum[7:0]));
-complement C17(.I(mantissa_sum[15:8]), .ctrl(temp_bit1), .O(comp_mantissa_sum[15:8]));
+complement C16(.I(mantissa_sum[7:0]),   .ctrl(temp_bit1), .O(comp_mantissa_sum[7:0]));
+complement C17(.I(mantissa_sum[15:8]),  .ctrl(temp_bit1), .O(comp_mantissa_sum[15:8]));
 complement C18(.I(mantissa_sum[23:16]), .ctrl(temp_bit1), .O(comp_mantissa_sum[23:16]));
 rca24bit   C19(.A(comp_mantissa_sum[23:0] ), .B(24'd0), .Cin(temp_bit1), .Sum(final_mantissa_sum[23:0]), .Cout());
 
@@ -90,15 +94,16 @@ demux_multi  C22(.I(final_mantissa_sum[23:0]), .SL(temp_bit2), .A(not_normalised
 
 encoder      C23(.significand_in(not_normalised[23:0]), .shift(dec_expo[4:0]), .significand_out(final_normalised[23:0]));
 
-complement   C24(.I({3'b000,dec_expo[4:0]}), .ctrl(1'b1), .O(comp_dec_expo[7:0]));
-rca8bit      C25(.A(res_expo[7:0]), .B(comp_dec_expo[7:0]), .Cin(1'b1), .Sum(temp_expo[7:0]), .Cout(w1));
+complement   C24(.I({3'b000,dec_expo[4:0]}),  .ctrl(1'b1),  .O(comp_dec_expo[7:0]));
+rca8bit      C25(.A(res_expo[7:0]),  .B(comp_dec_expo[7:0]),  .Cin(1'b1),  .Sum(temp_expo[7:0]), .Cout(w1));
 not(nw1,w1);
-complement   C26(.I(temp_expo[7:0]), .ctrl(nw1), .O(comp_temp_expo[7:0]));
-rca8bit      C27(.A(comp_temp_expo[7:0]), .B(8'b00000000), .Cin(nw1), .Sum(final_res_expo[7:0]), .Cout());
-rca8bit      C28(.A(res_expo[7:0]), .B(8'd0), .Cin(temp_bit2), .Sum(final_res_expo1[7:0]), .Cout());
+complement   C26(.I(temp_expo[7:0]),      .ctrl(nw1),      .O(comp_temp_expo[7:0]));
+rca8bit      C27(.A(comp_temp_expo[7:0]), .B(8'b00000000), .Cin(nw1),            .Sum(final_res_expo[7:0]), .Cout());
+rca8bit      C28(.A(res_expo[7:0]),       .B(8'd0),        .Cin(temp_bit2),      .Sum(final_res_expo1[7:0]), .Cout());
+
 mux_multi    C29(.A({result_sign,final_res_expo[7:0],final_normalised[22:0]}), .B({result_sign,final_res_expo1[7:0],normalised[23:1]}), .SL(temp_bit2), .O(temp_result1[31:0]));
-mux_multi    C30(.A(temp_result1[31:0]), .B(32'd0), .SL(zero), .O(temp_result2[31:0]));
-mux_multi    C31(.A(temp_result2[31:0]), .B(32'hFFFFFFFF), .SL(Exception), .O(Result[31:0]));
+mux_multi    C30(.A(temp_result1[31:0]),                                       .B(32'd0),                                               .SL(zero),      .O(temp_result2[31:0]));
+mux_multi    C31(.A(temp_result2[31:0]),                                       .B(32'hFFFFFFFF),                                        .SL(Exception), .O(Result[31:0]));
 
 endmodule
 
@@ -117,10 +122,10 @@ or(bitorout,bitorin[7],bitorin[6],bitorin[5],bitorin[4],bitorin[3],bitorin[2],bi
 endmodule
 
 module bitnor(
-	 input [22:0]in,
+	 input [23:0]in,
 	 output bitnorout
 	 );
-nor(bitnorout,in[22],in[21],in[20],in[19],in[18],in[17],in[16],in[15],in[14],in[13],in[12],in[11],in[10],in[9],in[8],in[7],in[6],in[5],in[4],in[3],in[2],in[1],in[0]);
+nor(bitnorout,in[23],in[22],in[21],in[20],in[19],in[18],in[17],in[16],in[15],in[14],in[13],in[12],in[11],in[10],in[9],in[8],in[7],in[6],in[5],in[4],in[3],in[2],in[1],in[0]);
 endmodule
 
 module complement(
@@ -314,58 +319,49 @@ module encoder(
 always @(significand_in)
 begin
 	casex (significand_in)
-		24'b1xxx_xxxx_xxxx_xxxx_xxxx_xxxx : 
-			begin
-			significand_out = significand_in;
-			shift = 5'd0;
-			end
-		24'b01xx_xxxx_xxxx_xxxx_xxxx_xxxx :
-			begin						
-			significand_out = significand_in << 1;
-			shift = 5'd1;
-			end
+		24'b1xxx_xxxx_xxxx_xxxx_xxxx_xxxx :	begin
+													   significand_out = significand_in;
+									 				   shift = 5'd0;
+														end
+		24'b01xx_xxxx_xxxx_xxxx_xxxx_xxxx : begin						
+										 			   significand_out = significand_in << 1;
+									 				   shift = 5'd1;
+														end
 
-		24'b001x_xxxx_xxxx_xxxx_xxxx_xxxx :
-			begin						
-			significand_out = significand_in << 2;
-			shift = 5'd2;
-			end
+		24'b001x_xxxx_xxxx_xxxx_xxxx_xxxx : begin						
+										 			   significand_out = significand_in << 2;
+									 				   shift = 5'd2;
+													   end
 
-		24'b0001_xxxx_xxxx_xxxx_xxxx_xxxx :
-			begin 							
-			significand_out = significand_in << 3;
-			shift = 5'd3;
-			end
+		24'b0001_xxxx_xxxx_xxxx_xxxx_xxxx : 	begin 							
+													significand_out = significand_in << 3;
+								 	 				shift = 5'd3;
+								 		end
 
-		24'b0000_1xxx_xxxx_xxxx_xxxx_xxxx :
-			begin						
-			significand_out = significand_in << 4;
-			shift = 5'd4;
-			end
+		24'b0000_1xxx_xxxx_xxxx_xxxx_xxxx : 	begin						
+									 				significand_out = significand_in << 4;
+								 	 				shift = 5'd4;
+								 		end
 
-		24'b0000_01xx_xxxx_xxxx_xxxx_xxxx :
-			begin						
-			significand_out = significand_in << 5;
-			shift = 5'd5;
-			end
+		24'b0000_01xx_xxxx_xxxx_xxxx_xxxx : 	begin						
+									 				significand_out = significand_in << 5;
+								 	 				shift = 5'd5;
+										end
 
-		24'b0000_001x_xxxx_xxxx_xxxx_xxxx :
-			begin
-			significand_out = significand_in << 6;
-			shift = 5'd6;
-			end
+		24'b0000_001x_xxxx_xxxx_xxxx_xxxx : 	begin						// 24'h020000
+									 				significand_out = significand_in << 6;
+								 	 				shift = 5'd6;
+						 				end
 
-		24'b0000_0001_xxxx_xxxx_xxxx_xxxx :
-			begin
-			significand_out = significand_in << 7;
-			shift = 5'd7;
-			end
+		24'b0000_0001_xxxx_xxxx_xxxx_xxxx : 	begin						// 24'h010000
+									 				significand_out = significand_in << 7;
+								 	 				shift = 5'd7;
+						 				end
 
-		24'b0000_0000_1xxx_xxxx_xxxx_xxxx :
-			begin	
-			significand_out = significand_in << 8;
-			shift = 5'd8;
-			end
+		24'b0000_0000_1xxx_xxxx_xxxx_xxxx : 	begin						// 24'h008000
+									 				significand_out = significand_in << 8;
+								 	 				shift = 5'd8;
+						 				end
 
 		24'b0000_0000_01xx_xxxx_xxxx_xxxx : 	begin						// 24'h004000
 									 				significand_out = significand_in << 9;
@@ -446,6 +442,10 @@ begin
 								 					significand_out = significand_in << 24;
 							 	 					shift = 5'd24;
 						 				end
+		// default : 	begin
+		// 				Significand = (~significand) + 1'b1;
+		// 				shift = 8'd0;
+		// 			end
 	endcase
 end
 
