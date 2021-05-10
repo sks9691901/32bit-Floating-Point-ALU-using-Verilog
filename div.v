@@ -23,15 +23,13 @@ module div(
 		input [31:0] A,
 		input [31:0] B,
 		output Exception,
-		output [47:0]div_quotient,
-		output [7:0]final_res_expo,
 		output [31:0] result
 		);
 wire result_sign,expo_sign,expo_sign_comp,inc_dec_expo,temp_expo_sign,temp_expo_sign_comp;
 wire [7:0]res_expo;
-wire [7:0] comp_expo_B,diff,temp_expo,temp_expo_comp/*,final_res_expo*/;
+wire [7:0] comp_expo_B,diff,temp_expo,temp_expo_comp,final_res_expo;
 wire [4:0]change_expo,change_expo_comp;
-wire [47:0] /*div_quotient,*/div_qoutient_normalised; //48 Bits
+wire [47:0] div_quotient,div_qoutient_normalised; //48 Bits
 
 xor (result_sign,A[31],B[31]);
 
