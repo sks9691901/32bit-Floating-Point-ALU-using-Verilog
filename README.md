@@ -12,9 +12,13 @@ A = 32'b01000001000111001100110011001101 ==============> +9.8
 B = 32'b01000000100010011001100110011010 ==============> +4.3
 
 operation[2:0]
+
       000         =>   Addition
+      
       001         =>   Substraction
+      
       010         =>   Multiplication
+      
       011         =>   Division
 
 
@@ -30,3 +34,6 @@ MULTIPLICATION
 DIVISION
 ![Div](https://user-images.githubusercontent.com/76876019/117704659-b90b8100-b1e8-11eb-8d3e-b4aa6fc381f2.PNG)
 
+By
+SAURABH SINHA
+10/05/2021
