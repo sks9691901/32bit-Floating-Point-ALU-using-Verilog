@@ -9,9 +9,11 @@ INSIDE BLOCK DIAGRAM ( different blocks to perform different operations )
 
 ![block_sch](https://user-images.githubusercontent.com/76876019/117704774-db9d9a00-b1e8-11eb-90e7-e50330e2176e.PNG)
 
-A = 32'b01000001000111001100110011001101 ==============> +9.8
+EXAMPLE
 
-B = 32'b01000000100010011001100110011010 ==============> +4.3
+A = 32'b0_10000010_00111001100110011001101 ==============> +9.8 in decimal
+
+B = 32'b0_10000001_00010011001100110011010 ==============> +4.3 in decimal
 
 operation[2:0]
 
