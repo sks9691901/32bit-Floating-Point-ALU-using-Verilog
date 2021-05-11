@@ -43,8 +43,10 @@ or(Exception,bitandA,bitandB);
 // if exponent bits are not all zero then the implied bit (hidden bit) must be 1
 bitor_mul  C3(.bitorin(A[30:23]),.bitorout(bitorA));
 bitor_mul  C4(.bitorin(B[30:23]),.bitorout(bitorB));
-// Gate Level is to be imlemented
+
+// Gate Level is to be imlemented     =======================================> :(
 assign product = {bitorA,A[22:0]} * {bitorB,B[22:0]};
+
 // Rounding the last 23 bits
 bitor2_mul C5(.in(product[22:0]),.out(product_round));	
 // If 48th bit of product is 1 then product is normalised and this bit will acts as hidden bit
