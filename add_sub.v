@@ -22,7 +22,7 @@
 module add_sub(
      input [31:0]A,
      input  [31:0]B,
-     input  sign,
+     input  sign,    // 0 IS FOR ADDITION AND 1 IS FOR SUBTRACTION
      output Exception,
 	  output Overflow,
 	  output Underflow,
@@ -35,8 +35,8 @@ wire [31:0]operand_a,operand_b,res_expo,temp_result1,temp_result2;
 wire [23:0]mantissa_a,mantissa_b,mantissa_b_comp,mantissa_sum,comp_mantissa_sum,final_mantissa_sum,normalised,not_normalised,final_normalised;
 wire [4:0]dec_expo;
 
-not(Overflow,1'b1);
-not(Underflow,1'b1);
+not(Overflow,1'b0);
+not(Underflow,1'b0);
 
 bitand     C01(.bitandin(A[30:23]), .bitandout(bitandA));
 bitand     C02(.bitandin(B[30:23]), .bitandout(bitandB));
@@ -319,24 +319,23 @@ module encoder(
 always @(significand_in)
 begin
 	casex (significand_in)
-		24'b1xxx_xxxx_xxxx_xxxx_xxxx_xxxx :	begin
+		24'b1xxx_xxxx_xxxx_xxxx_xxxx_xxxx : begin
 													   significand_out = significand_in;
 									 				   shift = 5'd0;
-														end
+						                                end
 		24'b01xx_xxxx_xxxx_xxxx_xxxx_xxxx : begin						
 										 			   significand_out = significand_in << 1;
 									 				   shift = 5'd1;
-														end
-
+										end
 		24'b001x_xxxx_xxxx_xxxx_xxxx_xxxx : begin						
 										 			   significand_out = significand_in << 2;
 									 				   shift = 5'd2;
-													   end
+										end
 
 		24'b0001_xxxx_xxxx_xxxx_xxxx_xxxx : 	begin 							
 													significand_out = significand_in << 3;
 								 	 				shift = 5'd3;
-								 		end
+										end
 
 		24'b0000_1xxx_xxxx_xxxx_xxxx_xxxx : 	begin						
 									 				significand_out = significand_in << 4;
@@ -442,10 +441,6 @@ begin
 								 					significand_out = significand_in << 24;
 							 	 					shift = 5'd24;
 						 				end
-		// default : 	begin
-		// 				Significand = (~significand) + 1'b1;
-		// 				shift = 8'd0;
-		// 			end
 	endcase
 end
 
