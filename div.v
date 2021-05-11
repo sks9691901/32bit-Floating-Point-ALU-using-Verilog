@@ -59,7 +59,7 @@ bitor_div  C08(.bitorin(A[30:23]),.bitorout(bitorA));
 bitor_div  C09(.bitorin(B[30:23]),.bitorout(bitorB));
 
 // Calculating DIVISION ***************************************************************************************************************
-// Add dividend no of zeros in front of divisor and add one zero in front of dividend
+// Add divisord no. of zeros in front of dividend and add one zero in front of divisor
 divide C10(.dividend({24'd0,bitorA,A[22:0]}), .divisor({1'b0,bitorB,B[22:0]}), .quotient(div_quotient[47:0]));
 // Shifting of quotient for implied bit
 encoder_div C11(.significand_in(div_quotient[47:0]), .shift({inc_dec_expo,change_expo[4:0]}), .significand_out(div_qoutient_normalised[47:0]));
@@ -67,6 +67,7 @@ encoder_div C11(.significand_in(div_quotient[47:0]), .shift({inc_dec_expo,change
 complement_div C12(.I({3'd0,change_expo[4:0]}), .ctrl(inc_dec_expo), .O(change_expo_comp[7:0]));
 rca8bit_div    C13(.A(res_expo[7:0]), .B(change_expo_comp[7:0]), .Cin(inc_dec_expo), .Sum(final_res_expo[7:0]), .Cout(temp_expo_sign));
 
+// Uncomment following if answer is wrong
 //not(temp_expo_sign_comp,temp_expo_sign);
 //complement C14(.I(temp_expo[7:0]), .ctrl(temp_expo_sign_comp), .O(temp_expo_comp[7:0]));
 //rca8bit    C15(.A(temp_expo_comp[7:0]), .B(8'd0), .Cin(temp_expo_sign_comp), .Sum(final_res_expo[7:0]), .Cout());
@@ -86,8 +87,10 @@ module  divide(
 	 );
 wire [23:0]next01,next02,next03,next04,next05,next06,next07,next08,next09,next10,next11,next12,next13,next14,next15,next16,next17,next18,next19,next20,next21,next22,next23,next24;
 wire [23:0]next25,next26,next27,next28,next29,next30,next31,next32,next33,next34,next35,next36,next37,next38,next39,next40,next41,next42,next43,next44,next45,next46,next47;
-// take 25 bits from dividend, try to subtract divisor
-// in next step move one bit forward do the same thing again and again
+	// take 25 bits from dividend, try to subtract divisor (using 2's complement)
+        // if carry is zero => unable to subtract and quotient is 0
+	// if carry is 1 => subtracted successfully and quotient is 1
+        // in next step move one bit forward do the same thing again and again
 procedure P01(.dividend_part(dividend[47:23]),             .divisor_part(divisor[24:0]), .sub_part(next01[23:0]), .q(quotient[47]));
 procedure P02(.dividend_part({next01[23:0],dividend[22]}), .divisor_part(divisor[24:0]), .sub_part(next02[23:0]), .q(quotient[46]));
 procedure P03(.dividend_part({next02[23:0],dividend[21]}), .divisor_part(divisor[24:0]), .sub_part(next03[23:0]), .q(quotient[45]));
@@ -112,7 +115,7 @@ procedure P21(.dividend_part({next20[23:0],dividend[3]}),  .divisor_part(divisor
 procedure P22(.dividend_part({next21[23:0],dividend[2]}),  .divisor_part(divisor[24:0]), .sub_part(next22[23:0]), .q(quotient[26]));
 procedure P23(.dividend_part({next22[23:0],dividend[1]}),  .divisor_part(divisor[24:0]), .sub_part(next23[23:0]), .q(quotient[25]));
 procedure P24(.dividend_part({next23[23:0],dividend[0]}),  .divisor_part(divisor[24:0]), .sub_part(next24[23:0]), .q(quotient[24]));
-// location of decimal position
+// decimal point position
 procedure P25(.dividend_part({next24[23:0],1'b0}),         .divisor_part(divisor[24:0]), .sub_part(next25[23:0]), .q(quotient[23]));
 procedure P26(.dividend_part({next25[23:0],1'b0}),         .divisor_part(divisor[24:0]), .sub_part(next26[23:0]), .q(quotient[22]));
 procedure P27(.dividend_part({next26[23:0],1'b0}),         .divisor_part(divisor[24:0]), .sub_part(next27[23:0]), .q(quotient[21]));
@@ -143,7 +146,7 @@ endmodule //divide
 module procedure(
 	input [24:0]dividend_part,
 	input [24:0]divisor_part,
-	output [23:0]sub_part,
+	output [23:0]sub_part, // subtraction dividend_part - divisor_part
 	output q
 	 );
 wire [24:0]comp_division_part,difference;
@@ -172,8 +175,8 @@ always @(significand_in)
 begin
 	casex (significand_in)
 
-	 //    6         5         4        .3         2         1
-    //    8765 4321 8765 4321 8765 4321 8765 4321 8765 4321 8765 4321 
+	 //         6         5         4        .3         2         1
+         //         8765 4321 8765 4321 8765 4321 8765 4321 8765 4321 8765 4321 
 		48'b1xxx_xxxx_xxxx_xxxx_xxxx_xxxx_xxxx_xxxx_xxxx_xxxx_xxxx_xxxx : 
 		begin
 			significand_out = significand_in << 0;
@@ -414,15 +417,12 @@ begin
 			significand_out = significand_in << 47;
 			shift = 6'b111000;
 		end
-
-		// default : 	begin
-		// 				Significand = (~significand) + 1'b1;
-		// 				shift = 6'd0;
-		// 			end
 	endcase
 end
 
 endmodule
+
+// new_module_name_div
 
 module bitand_div(
 	 input [7:0]bitandin,
@@ -468,10 +468,10 @@ module rca25bit(
 	 output [24:0]Sum,
 	 output Cout
 	 );
-rca8bit_div adder81   (.A(A[7:0]),   .B(B[7:0]),   .Cin(Cin),      .Sum(Sum[7:0]),   .Cout(ripple1));
-rca8bit_div adder82   (.A(A[15:8]),  .B(B[15:8]),  .Cin(ripple1),  .Sum(Sum[15:8]),  .Cout(ripple2));
-rca8bit_div adder83   (.A(A[23:16]), .B(B[23:16]), .Cin(ripple2),  .Sum(Sum[23:16]), .Cout(ripple3));
-adder_full_div adder41(.a(A[24]),    .b(B[24]),    .cin(ripple3),  .sum(Sum[24]),    .carry(Cout));
+rca8bit_div        adder81   (.A(A[7:0]),   .B(B[7:0]),   .Cin(Cin),      .Sum(Sum[7:0]),   .Cout(ripple1));
+rca8bit_div        adder82   (.A(A[15:8]),  .B(B[15:8]),  .Cin(ripple1),  .Sum(Sum[15:8]),  .Cout(ripple2));
+rca8bit_div        adder83   (.A(A[23:16]), .B(B[23:16]), .Cin(ripple2),  .Sum(Sum[23:16]), .Cout(ripple3));
+adder_full_div     adder41(.a(A[24]),    .b(B[24]),    .cin(ripple3),  .sum(Sum[24]),    .carry(Cout));
 endmodule
 
 module rca8bit_div(
@@ -493,7 +493,7 @@ module adder4_div(
 	 output [3:0]sum,
 	 output carry
 	 );
-    wire w1,w2,w3;
+wire w1,w2,w3;
 adder_full_div G0(.a(a[0]),  .b(b[0]),  .cin(cin),  .sum(sum[0]),  .carry(w1));
 adder_full_div G1(.a(a[1]),  .b(b[1]),  .cin(w1),   .sum(sum[1]),  .carry(w2));
 adder_full_div G2(.a(a[2]),  .b(b[2]),  .cin(w2),   .sum(sum[2]),  .carry(w3));
