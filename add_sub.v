@@ -35,8 +35,8 @@ wire [31:0]operand_a,operand_b,res_expo,temp_result1,temp_result2;
 wire [23:0]mantissa_a,mantissa_b,mantissa_b_comp,mantissa_sum,comp_mantissa_sum,final_mantissa_sum,normalised,not_normalised,final_normalised;
 wire [4:0]dec_expo;
 
-not(Overflow,1'b0);
-not(Underflow,1'b0);
+not(Overflow,1'b1);
+not(Underflow,1'b1);
 
 bitand     C01(.bitandin(A[30:23]), .bitandout(bitandA));
 bitand     C02(.bitandin(B[30:23]), .bitandout(bitandB));
@@ -320,16 +320,16 @@ always @(significand_in)
 begin
 	casex (significand_in)
 		24'b1xxx_xxxx_xxxx_xxxx_xxxx_xxxx : begin
-													   significand_out = significand_in;
-									 				   shift = 5'd0;
+													significand_out = significand_in;
+									 				shift = 5'd0;
 						                                end
 		24'b01xx_xxxx_xxxx_xxxx_xxxx_xxxx : begin						
-										 			   significand_out = significand_in << 1;
-									 				   shift = 5'd1;
+										 			significand_out = significand_in << 1;
+									 				shift = 5'd1;
 										end
 		24'b001x_xxxx_xxxx_xxxx_xxxx_xxxx : begin						
-										 			   significand_out = significand_in << 2;
-									 				   shift = 5'd2;
+										 			significand_out = significand_in << 2;
+									 				shift = 5'd2;
 										end
 
 		24'b0001_xxxx_xxxx_xxxx_xxxx_xxxx : 	begin 							
@@ -347,97 +347,97 @@ begin
 								 	 				shift = 5'd5;
 										end
 
-		24'b0000_001x_xxxx_xxxx_xxxx_xxxx : 	begin						// 24'h020000
+		24'b0000_001x_xxxx_xxxx_xxxx_xxxx : 	begin						
 									 				significand_out = significand_in << 6;
 								 	 				shift = 5'd6;
 						 				end
 
-		24'b0000_0001_xxxx_xxxx_xxxx_xxxx : 	begin						// 24'h010000
+		24'b0000_0001_xxxx_xxxx_xxxx_xxxx : 	begin					
 									 				significand_out = significand_in << 7;
 								 	 				shift = 5'd7;
 						 				end
 
-		24'b0000_0000_1xxx_xxxx_xxxx_xxxx : 	begin						// 24'h008000
+		24'b0000_0000_1xxx_xxxx_xxxx_xxxx : 	begin						
 									 				significand_out = significand_in << 8;
 								 	 				shift = 5'd8;
 						 				end
 
-		24'b0000_0000_01xx_xxxx_xxxx_xxxx : 	begin						// 24'h004000
+		24'b0000_0000_01xx_xxxx_xxxx_xxxx : 	begin					
 									 				significand_out = significand_in << 9;
 								 	 				shift = 5'd9;
 						 				end
 
-		24'b0000_0000_001x_xxxx_xxxx_xxxx : 	begin						// 24'h002000
+		24'b0000_0000_001x_xxxx_xxxx_xxxx : 	begin						
 									 				significand_out = significand_in << 10;
 								 	 				shift = 5'd10;
 								 		end
 
-		24'b0000_0000_0001_xxxx_xxxx_xxxx : 	begin						// 24'h001000
+		24'b0000_0000_0001_xxxx_xxxx_xxxx : 	begin						
 									 				significand_out = significand_in << 11;
 								 	 				shift = 5'd11;
 										end
 
-		24'b0000_0000_0000_1xxx_xxxx_xxxx : 	begin						// 24'h000800
+		24'b0000_0000_0000_1xxx_xxxx_xxxx : 	begin						
 									 				significand_out = significand_in << 12;
 								 	 				shift = 5'd12;
 						 				end
 
-		24'b0000_0000_0000_01xx_xxxx_xxxx : 	begin						// 24'h000400
+		24'b0000_0000_0000_01xx_xxxx_xxxx : 	begin					
 									 				significand_out = significand_in << 13;
 								 	 				shift = 5'd13;
 						 				end
 
-		24'b0000_0000_0000_001x_xxxx_xxxx : 	begin						// 24'h000200
+		24'b0000_0000_0000_001x_xxxx_xxxx : 	begin						
 									 				significand_out = significand_in << 14;
 								 	 				shift = 5'd14;
 						 				end
 
-		24'b0000_0000_0000_0001_xxxx_xxxx  : 	begin						// 24'h000100
+		24'b0000_0000_0000_0001_xxxx_xxxx  : 	begin						
 									 				significand_out = significand_in << 15;
 								 	 				shift = 5'd15;
 						 				end
 
-		24'b0000_0000_0000_0000_1xxx_xxxx : 	begin						// 24'h000080
+		24'b0000_0000_0000_0000_1xxx_xxxx : 	begin						
 									 				significand_out = significand_in << 16;
 								 	 				shift = 5'd16;
 								 		end
 
-		24'b0000_0000_0000_0000_01xx_xxxx : 	begin						// 24'h000040
+		24'b0000_0000_0000_0000_01xx_xxxx : 	begin						
 											 		significand_out = significand_in << 17;
 										 	 		shift = 5'd17;
 										end
 
-		24'b0000_0000_0000_0000_001x_xxxx : 	begin						// 24'h000020
+		24'b0000_0000_0000_0000_001x_xxxx : 	begin						
 									 				significand_out = significand_in << 18;
 								 	 				shift = 5'd18;
 						 				end
 
-		24'b0000_0000_0000_0000_0001_xxxx : 	begin						// 24'h000010
+		24'b0000_0000_0000_0000_0001_xxxx : 	begin						
 									 				significand_out = significand_in << 19;
 								 	 				shift = 5'd19;
 										end
 
-		24'b0000_0000_0000_0000_0000_1xxx :	begin						// 24'h000008
+		24'b0000_0000_0000_0000_0000_1xxx :	begin						
 									 				significand_out = significand_in << 20;
 								 					shift = 5'd20;
 						 				end
 
-		24'b0000_0000_0000_0000_0000_01xx : 	begin						// 24'h000004
+		24'b0000_0000_0000_0000_0000_01xx : 	begin						
 									 				significand_out = significand_in << 21;
 								 	 				shift = 5'd21;
 						 				end
 
-		24'b0000_0000_0000_0000_0000_001x : 	begin						// 24'h000002
+		24'b0000_0000_0000_0000_0000_001x : 	begin						
 									 				significand_out = significand_in << 22;
 								 	 				shift = 5'd22;
 								 		end
 
-		24'b0000_0000_0000_0000_0000_0001 : 	begin						// 24'h000001
+		24'b0000_0000_0000_0000_0000_0001 : 	begin						
 									 				significand_out = significand_in << 23;
 								 	 				shift = 5'd23;
 										end
 
-		24'b0000_0000_0000_0000_0000_0000 : 	begin						// 24'h000000
+		24'b0000_0000_0000_0000_0000_0000 : 	begin						
 								 					significand_out = significand_in << 24;
 							 	 					shift = 5'd24;
 						 				end
