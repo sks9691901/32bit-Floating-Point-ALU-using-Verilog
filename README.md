@@ -7,7 +7,8 @@ BLOCK DIAGRAM of ALU representing Input and Output ports ( Xilinx )
 
 INSIDE BLOCK DIAGRAM ( different blocks to perform different operations )
 
-![block_sch](https://user-images.githubusercontent.com/76876019/117704774-db9d9a00-b1e8-11eb-90e7-e50330e2176e.PNG)
+![Screenshot (58)](https://user-images.githubusercontent.com/76876019/118736617-a20c0500-b860-11eb-8bf1-27e5eeeafbd0.png)
+
 
 EXAMPLE
 
