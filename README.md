@@ -1,7 +1,7 @@
 # 32-bit-Floating-Point-ALU
 Arithmetical Logical Unit (Gate Level Implimentation)
 
-BLOCK DIAGRAM of ALU representing Input and Output ports ( Xilinx )
+BLOCK DIAGRAM of ALU representing Input and Output ports ( VIVADO )
 
 ![sch1](https://user-images.githubusercontent.com/76876019/117704694-c6287000-b1e8-11eb-86bc-3cef3d89bb5c.PNG)
 
@@ -29,19 +29,19 @@ operation[2:0]
 
 ADDITION
 
-![add](https://user-images.githubusercontent.com/76876019/117704550-95e0d180-b1e8-11eb-977f-fd1f7a2001a4.PNG)
+![add](https://user-images.githubusercontent.com/76876019/118895089-1dce8600-b923-11eb-85c2-f1e06116a995.PNG)
 
 SUBTRACTION
 
-![sub](https://user-images.githubusercontent.com/76876019/117704603-a5f8b100-b1e8-11eb-8a51-e32999dca940.PNG)
+![sub](https://user-images.githubusercontent.com/76876019/118895105-29ba4800-b923-11eb-9800-7c72b6a56592.PNG)
 
 MULTIPLICATION
 
-![Mul](https://user-images.githubusercontent.com/76876019/117704630-b01aaf80-b1e8-11eb-87c7-b79adac14da5.PNG)
+![Mul](https://user-images.githubusercontent.com/76876019/118895136-350d7380-b923-11eb-9ca5-cb2719e6d518.PNG)
 
 DIVISION
 
-![Div](https://user-images.githubusercontent.com/76876019/117704659-b90b8100-b1e8-11eb-8d3e-b4aa6fc381f2.PNG)
+![Div](https://user-images.githubusercontent.com/76876019/118895156-3dfe4500-b923-11eb-8694-b77a2c7f0831.PNG)
 
 ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
