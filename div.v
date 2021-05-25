@@ -67,7 +67,6 @@ encoder_div C11(.significand_in(div_quotient[47:0]), .shift({inc_dec_expo,change
 complement_div C12(.I({3'd0,change_expo[4:0]}), .ctrl(inc_dec_expo), .O(change_expo_comp[7:0]));
 rca8bit_div    C13(.A(res_expo[7:0]), .B(change_expo_comp[7:0]), .Cin(inc_dec_expo), .Sum(final_res_expo[7:0]), .Cout(temp_expo_sign));
 
-// Uncomment following if answer is wrong
 //not(temp_expo_sign_comp,temp_expo_sign);
 //complement C14(.I(temp_expo[7:0]), .ctrl(temp_expo_sign_comp), .O(temp_expo_comp[7:0]));
 //rca8bit    C15(.A(temp_expo_comp[7:0]), .B(8'd0), .Cin(temp_expo_sign_comp), .Sum(final_res_expo[7:0]), .Cout());
