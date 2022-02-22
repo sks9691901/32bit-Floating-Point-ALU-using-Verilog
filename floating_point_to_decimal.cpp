@@ -71,4 +71,4 @@ int main()
 }
 
 // This code is contributed by ShubhamSingh10
-// Copied from geeks for geeks
+// Taken from geeks for geeks
